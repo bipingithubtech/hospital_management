@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const doctorSchema = new mongoose.Schema(
   {
     firstName: {
@@ -43,12 +44,14 @@ const doctorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    pateintHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "Patient" }],
+   
     registeredDate: {
       type: Date,
       default: Date.now,
     },
+  
   },
+ 
   { timestamps: true }
 );
 

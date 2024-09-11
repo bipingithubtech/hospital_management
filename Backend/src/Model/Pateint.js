@@ -35,16 +35,10 @@ const patientSchema = new mongoose.Schema(
         required: true,
       },
     },
-    Doctor: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Doctor",
-      },
-    ],
-    registeredDate: {
-      type: Date,
-      default: Date.now,
-    },
+    doctor: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }
+
+  
+    
   },
   { timestamps: true }
 );

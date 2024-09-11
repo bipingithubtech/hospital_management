@@ -2,9 +2,11 @@ import express from "express";
 
 import uploadCloudinary from "../utils/cloudinary.js";
 import Doctor from "../Model/Doctor.js";
-
+import mongoose from "mongoose";
 import { upload } from "../middleware/multer.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import ApiError from "../utils/ApiError.js";
+import Patient from "../Model/Pateint.js";
 
 export const doctorRouter = express.Router();
 
@@ -18,7 +20,7 @@ doctorRouter.post("/createDoctor", upload.single("image"), async (req, res) => {
       contactInfo,
       specialization,
       experience,
-      pateintHistory,
+     
     } = req.body;
     const imageLocalPath = req.file?.path;
 
@@ -36,9 +38,10 @@ doctorRouter.post("/createDoctor", upload.single("image"), async (req, res) => {
       Image: image.url,
       specialization,
       experience,
-      pateintHistory,
+      
     });
-
+      
+    
     res
       .status(200)
       .json(new ApiResponse(200, newDoctor, "doctor data secessfully added"));
@@ -102,3 +105,43 @@ doctorRouter.patch("/updateImage/:id", upload.single("image"), async (req, res) 
   }
 });
 
+doctorRouter.get("/getAll",async(req,res)=>{
+  try{
+     const user=await Doctor.find({})
+     res.status(200).json(new ApiResponse(200,user,"all user displayed sucess fully"))
+  }catch(error){
+   throw new ApiError(404,"no user found")
+  }
+})
+
+doctorRouter.get('/getDoctorAndPatients/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate the ObjectId format using mongoose.Types.ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json(new ApiResponse(400, null, "Invalid doctor ID format"));
+    }
+
+    // Fetch the doctor details (only the name field)
+    const doctor = await Doctor.findById(id)
+    if (!doctor) {
+      return res.status(404).json(new ApiResponse(404, null, "Doctor not found"));
+    }
+
+    // Fetch all patients assigned to this doctor (only the name field)
+    const patients = await Patient.find({ doctor: id })
+      .select('name') // Fetch only the patient names
+      .exec();
+
+    // Format and send the response
+    res.status(200).json(new ApiResponse(200, {
+      doctorName: doctor.name, // Doctor's name
+      patients: patients.map(patient => patient.name) // Array of patient names
+    }, "Doctor and assigned patients retrieved successfully"));
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(new ApiResponse(500, null, "Error retrieving doctor and patients"));
+  }
+});

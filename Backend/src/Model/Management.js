@@ -2,16 +2,16 @@ import mongoose from "mongoose";
 
 const managementSchema = new mongoose.Schema(
   {
-    patient: {
+    patient: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patient",
       required: true,
-    },
-    doctor: {
+    }],
+    doctor:[ {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Doctor",
       required: true,
-    },
+    }],
     status: {
       type: String,
       enum: ["Admitted", "Discharged", "Under Treatment", "Recovered"],
